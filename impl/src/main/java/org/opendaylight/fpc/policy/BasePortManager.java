@@ -98,9 +98,11 @@ public class BasePortManager extends PortManager implements AutoCloseable{
 //    			dpnHolder.activator.send_ADC_rules(topologyDpn, port);
     			dpnHolder.activator.send_ADC_rules(DpnAPIListener.getTopicFromDpnId(dpn.getDpnId()), port);
     		}
-    	}else{
-    		LOG.warn("Port/DPN mapping couldn't be established, make sure context has both a port and a DPN");
     	}
+
+//    	else{
+//    		LOG.warn("Port/DPN mapping couldn't be established, make sure context has both a port and a DPN");
+//    	}
 	}
 
 	@Override

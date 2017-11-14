@@ -7,7 +7,9 @@
  */
 package org.opendaylight.fpc.utils.eventStream;
 
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -19,7 +21,7 @@ import org.opendaylight.fpc.utils.ErrorLog;
  * A class that parses the request stream and enqueues creates event-data pairs for processing
  */
 public class ParseStream implements Runnable {
-	public static BlockingQueue<Map.Entry<String, CharBuffer>> blockingQueue = new LinkedBlockingQueue<Map.Entry<String, CharBuffer>>();
+	public static BlockingQueue<Map.Entry<String, ByteBuffer>> blockingQueue = new LinkedBlockingQueue<Map.Entry<String, ByteBuffer>>();
 	private CharBuffer charBuf;
 	private String partialChunk; //Chunked data left over at the end of the buffer
 	boolean chunkedBuffer;
@@ -61,10 +63,17 @@ public class ParseStream implements Runnable {
 	public void run() {
 		chunkedBuffer = false;
 		String event = null,data = null;
+		System.out.println("Parse Stream Started");
 		while(true){
 			try {
-				Map.Entry<String, CharBuffer> entry = blockingQueue.take();
-				this.charBuf = entry.getValue();
+				Map.Entry<String, ByteBuffer> entry = blockingQueue.take();
+				ByteBuffer byteBuffer = entry.getValue();
+//				byteBuffer.rewind();
+//				byte[] byteArray = new byte[byteBuffer.remaining()];
+//        		System.arraycopy(byteBuffer.array(), 0, byteArray, 0, byteBuffer.remaining());
+//        		byteBuffer =  ByteBuffer.wrap(byteArray);
+				this.charBuf = Charset.forName("ISO-8859-1").decode(byteBuffer);
+				//System.out.println(this.charBuf);
 				while(this.charBuf.hasRemaining()){
 					String line = getLine();
 					if(line != null){

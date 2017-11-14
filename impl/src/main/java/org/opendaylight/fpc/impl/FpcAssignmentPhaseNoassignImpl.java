@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.fpc.NB.SendResponse;
 import org.opendaylight.fpc.activation.cache.transaction.EmptyBodyException;
 import org.opendaylight.fpc.activation.cache.transaction.Transaction;
 import org.opendaylight.fpc.activation.cache.transaction.Transaction.OperationStatus;
@@ -230,7 +231,7 @@ public class FpcAssignmentPhaseNoassignImpl extends FpcagentServiceBase {
                                             enqueueVal = enqueues.incrementAndGet();
                         				}
                         				else if(input.getOpType().equals(OpType.Update)){
-                        					for(int i = 0; i < 1500; i++){
+                        					for(int i = 0; i < 3000; i++){
                         						Thread.sleep(1);
                         						entry = sessionMap.get(NameResolver.extractString(context.getContextId()));
                         						if(entry != null){
@@ -309,9 +310,11 @@ public class FpcAssignmentPhaseNoassignImpl extends FpcagentServiceBase {
     	String outputString = fpcCodecUtils.jsonStringFromConfigureOutput(configureOutput);
     	String clientUri = NBEventWorker.clientIdToUri.get(input.getClientId().getInt64().intValue());
 
-    	if(clientUri != null && outputString != null)
-    		ConfigureService.blockingQueue.add(new AbstractMap.SimpleEntry(clientUri, new AbstractMap.SimpleEntry(tx,"event:application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+outputString+"\r\n")));
-
+    	if(clientUri != null && outputString != null){
+    		String response = "event:application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+outputString;
+    		response = Integer.toHexString(response.length())+"\r\n"+response+"\r\n";
+    		SendResponse.blockingQueue.add(new AbstractMap.SimpleEntry(clientUri, new AbstractMap.SimpleEntry(tx,response)));
+    	}
         return Futures.immediateFuture(RpcResultBuilder.<ConfigureOutput>success().build());
     }
 

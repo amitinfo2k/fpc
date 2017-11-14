@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.fpc.NB.ServerSocket;
 import org.opendaylight.fpc.activation.ActivatorFactory;
 import org.opendaylight.fpc.activation.cache.StorageWriter;
 import org.opendaylight.fpc.activation.cache.transaction.Metrics;
@@ -223,7 +224,7 @@ public class FpcProvider implements AutoCloseable {
         jettyServer = new Thread ( new Runnable(){
 			@Override
 			public void run() {
-				JettyServer.init();
+				ServerSocket.start();
 			}
         });
         jettyServer.start();
@@ -232,7 +233,7 @@ public class FpcProvider implements AutoCloseable {
         parseStreamThread.start();
 
         try {
-            NBEventPool.createInstance(20);
+            NBEventPool.createInstance(40);
             NBEventPool.getInstance().start();
             NBEventPool.getInstance().run();
         } catch (Exception e) {

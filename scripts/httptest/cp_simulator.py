@@ -35,11 +35,12 @@ signal.signal(signal.SIGINT, signal_handler)
 
 ###########################################################
 # Change these three values depending on your test case
-NO_OF_UEs = 10000
+NO_OF_UEs = 1000
 SESSION_ID_START = 1
 DPN_ID = "dpn1"
 ###########################################################
 
+NO_OF_REQUESTS = 0
 NO_OF_RESPONSES = 0
 NO_OF_NOTIFS = 0
 CLIENT_ID = None
@@ -57,18 +58,17 @@ def responseStream():
     jsn['client-uri'] = "http://127.0.0.1:9996/request"
     headers = {'Connection':'keep-alive','Accept':'*/*'}
     r = requests.post('http://127.0.0.1:8070/response', headers=headers, stream=True,data=json.dumps(jsn),timeout=500)
-    for line in r.iter_lines():
-        decoded_line = line.decode('utf-8')
-        if "supported-features" in decoded_line:
+    for line in r.iter_content(chunk_size=None):
+        decoded_line = line
+        if "fpc:register_client" in decoded_line:
             count = count - 1
+            decoded_line = (decoded_line.split('\n',1)[1]).strip()
             decoded_line = (decoded_line.split(':',1)[1]).strip()
             output = json.loads(decoded_line)
             CLIENT_ID = output['output']['client-id']
             print("Client id = "+str(CLIENT_ID))
             continue
-        count = count+1
-        if(count % 2 == 0):
-            NO_OF_RESPONSES = NO_OF_RESPONSES + 1
+        NO_OF_RESPONSES = NO_OF_RESPONSES + 1
         if not RUN:
             break;
 th = threading.Thread(target=responseStream)
@@ -79,7 +79,7 @@ def stats():
     global RUN
     count = 0
     while True:
-        print count," | No of Responses: ",NO_OF_RESPONSES, "\tNo of Notifications: ",NO_OF_NOTIFS
+        print count," | No of Requests: ",NO_OF_REQUESTS,"\tNo of Responses: ",NO_OF_RESPONSES, "\tNo of Notifications: ",NO_OF_NOTIFS
         count = count + 1
         time.sleep(1)
         if not RUN:
@@ -97,13 +97,10 @@ def notificationStream(clientId=None):
         headers = {'Connection':'keep-alive','Accept':'*/*'}
         r = s.post('http://127.0.0.1:8070/notification', headers=headers, stream=True, data=json.dumps(jsn),timeout=500)
         count = 0
-        for line in r.iter_lines():
-            decoded_line = line.decode('utf-8')
-            count = count + 1
-            if count%2 == 0:
-                NO_OF_NOTIFS = NO_OF_NOTIFS + 1
-                if not RUN:
-                    break
+        for line in r.iter_content(chunk_size=None):
+            NO_OF_NOTIFS = NO_OF_NOTIFS + 1
+            if not RUN:
+                break
             #print(line)
 
 class ThreadingServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
@@ -112,6 +109,7 @@ class ThreadingServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
 class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
+        global NO_OF_REQUESTS
         global CLIENT_ID
         global RUN
         #SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
@@ -138,21 +136,23 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             strlen = (hex(len(string)))[2:]
             self.wfile.write(strlen+"\r\n"+string+"\r\n")
             self.wfile.flush()
-            time.sleep(0.00001)
+            NO_OF_REQUESTS += 1
+            time.sleep(0.002)
             inputStr = "{'input':{'op-id':'"+str(i+(SESSION_ID_START+NO_OF_UEs))+"','contexts':[{'instructions':{'instr-3gpp-mob':'downlink'},'context-id':"+str(i+SESSION_ID_START)+",'dpn-group':'site1-l3','delegating-ip-prefixes':['192.168.1.5/32'],'ul':{'tunnel-local-address':'192.168.1.1','tunnel-remote-address':'10.1.1.2','mobility-tunnel-parameters':{'tunnel-type':'ietf-dmm-threegpp:gtpv1','tunnel-identifier':'3333'},'dpn-parameters':{}},'dl':{'tunnel-local-address':'192.168.1.1','tunnel-remote-address':'10.1.1.4','mobility-tunnel-parameters':{'tunnel-type':'ietf-dmm-threegpp:gtpv1','tunnel-identifier':'4444'},'dpn-parameters':{}},'dpns':[{'dpn-id':'"+DPN_ID+"','direction':'uplink','dpn-parameters':{}}],'imsi':'9135551234','ebi':'5','lbi':'5'}],'client-id':'"+str(CLIENT_ID)+"','session-state':'complete','admin-state':'enabled','op-type':'update','op-ref-scope':'op'}}"
             string = "event:"+str(i)+"application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+inputStr+"\r\n"
             strlen = (hex(len(string)))[2:]
             self.wfile.write(strlen+"\r\n"+string+"\r\n")
             self.wfile.flush()
-            time.sleep(0.00001)
-        time.sleep(5)
+            NO_OF_REQUESTS += 1
+            time.sleep(0.002)
         for i in range(0,NO_OF_UEs):
             inputStr = '{"input":{"op-id":"'+str(i+(SESSION_ID_START+NO_OF_UEs+NO_OF_UEs))+'","targets":[{"target":"/ietf-dmm-fpcagent:tenants/tenant/default/fpc-mobility/contexts/'+str(i+SESSION_ID_START)+'"}],"client-id":"'+str(CLIENT_ID)+'","session-state":"complete","admin-state":"enabled","op-type":"delete","op-ref-scope":"none"}}'
             string = "event:"+str(i)+"application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+inputStr+"\r\n"
             strlen = (hex(len(string)))[2:]
             self.wfile.write(strlen+"\r\n"+string+"\r\n")
             self.wfile.flush()
-            time.sleep(0.00001)
+            NO_OF_REQUESTS += 1
+            time.sleep(0.001)
         time.sleep(5)
         string = "event:"+"application/json;/restconf/operations/fpc:deregister_client\ndata:"+'{"input":{"client-id":"'+str(CLIENT_ID)+'"}}'+"\r\n"
         strlen = (hex(len(string)))[2:]

@@ -64,15 +64,15 @@ public class EventClient {
 
             @Override
             protected void onCharReceived(final CharBuffer buf, final IOControl ioctrl) throws IOException {
-            	try {
-            		char[] charArray = new char[buf.remaining()];
-            		System.arraycopy(buf.array(), 0, charArray, 0, buf.remaining());
-            		CharBuffer charBuffer =  CharBuffer.wrap(charArray);
-					ParseStream.blockingQueue.put(new AbstractMap.SimpleEntry<String, CharBuffer>(clientUri, charBuffer));
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//            	try {
+//            		char[] charArray = new char[buf.remaining()];
+//            		System.arraycopy(buf.array(), 0, charArray, 0, buf.remaining());
+//            		CharBuffer charBuffer =  CharBuffer.wrap(charArray);
+//					ParseStream.blockingQueue.put(new AbstractMap.SimpleEntry<String, CharBuffer>(clientUri, charBuffer));
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
             }
 
             @Override

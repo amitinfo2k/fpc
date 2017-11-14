@@ -12,6 +12,7 @@ import java.util.AbstractMap;
 import java.util.Collection;
 
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.fpc.NB.SendNotification;
 import org.opendaylight.fpc.impl.FpcServiceImpl;
 import org.opendaylight.fpc.utils.ErrorLog;
 import org.opendaylight.fpc.utils.FpcCodecUtils;
@@ -107,9 +108,9 @@ public class Notifier {
         	String streamString = fpcCodecUtils.notificationToJsonString(Notify.class,
     		        (DataObject) result,
     		        true);
-            streamString = streamString.replace("\n","");
-            streamString = "event:application/json;/notification\ndata:"+streamString+"\n";
-            NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
+            streamString = "event:application/json;/notification\ndata:"+streamString;
+            streamString = Integer.toHexString(streamString.length())+"\r\n"+streamString+"\r\n";
+            SendNotification.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
             if (issueInternal &&
                     (notificationService != null)) {
                 notificationService.putNotification(result);
@@ -166,10 +167,10 @@ public class Notifier {
         String streamString = fpcCodecUtils.notificationToJsonString(Notify.class,
 		        (DataObject) notif,
 		        true);
-        streamString = streamString.replace("\n", "");
-        streamString = "event:application/json;/notification\ndata:"+streamString+"\n";
+        streamString = "event:application/json;/notification\ndata:"+streamString;
+        streamString = Integer.toHexString(streamString.length())+"\r\n"+streamString+"\r\n";
         try {
-			NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(ddn.getClientId().getInt64().toString(),streamString));
+        	SendNotification.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(ddn.getClientId().getInt64().toString(),streamString));
 		} catch (InterruptedException e) {
 			ErrorLog.logError(e.getLocalizedMessage(),e.getStackTrace());
 		}
@@ -190,11 +191,12 @@ public class Notifier {
             String streamString = fpcCodecUtils.notificationToJsonString(Notify.class,
 			        (DataObject) notif,
 			        true);
-            streamString = streamString.replace("\n", "");
-            streamString = "event:application/json;/notification\ndata:"+streamString+"\n";
+
+            streamString = "event:application/json;/notification\ndata:"+streamString;
+            streamString = Integer.toHexString(streamString.length())+"\r\n"+streamString+"\r\n";
 
             try {
-				NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
+            	SendNotification.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
 			} catch (InterruptedException e) {
 				ErrorLog.logError(e.getLocalizedMessage(),e.getStackTrace());
 			}
