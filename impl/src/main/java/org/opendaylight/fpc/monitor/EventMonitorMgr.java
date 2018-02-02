@@ -211,12 +211,13 @@ public class EventMonitorMgr {
      * @param dpnStatus - DPN status
      */
     public static void processEvent(FpcDpnId dpn, DPNStatusIndication dpnStatus) {
-        // TODO - We need further guidance DPNStatusIndication on use cases
+
+	String[] keys=dpnStatus.getKey().split("/");
     	if(dpnStatus.getStatus() == DPNStatusIndication.Status.HELLO){
-            TenantManager.getTenantManager(new FpcIdentity(FpcProvider.getInstance().getConfig().getDefaultTenantId())).addDpnToDataStore(dpnStatus.getKey().split("/")[0], dpnStatus.getKey().split("/")[1]);
+           TenantManager.getTenantManager(new FpcIdentity(FpcProvider.getInstance().getConfig().getDefaultTenantId())).addDpnToDataStore(keys[0], keys[1], dpnStatus.getType());
     	}
     	if(dpnStatus.getStatus() == DPNStatusIndication.Status.BYE){
-            TenantManager.getTenantManager(new FpcIdentity(FpcProvider.getInstance().getConfig().getDefaultTenantId())).removeDpnFromDataStore(dpnStatus.getKey().split("/")[0], dpnStatus.getKey().split("/")[1]);
+            TenantManager.getTenantManager(new FpcIdentity(FpcProvider.getInstance().getConfig().getDefaultTenantId())).removeDpnFromDataStore(keys[0], keys[1]);
 
     	}
     }

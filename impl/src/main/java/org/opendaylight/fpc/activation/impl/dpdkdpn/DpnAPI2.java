@@ -77,6 +77,7 @@ public class DpnAPI2 {
             Ipv4Address ue_ip,
             Short default_ebi,
             Ipv4Address s1u_sgw_gtpu_ipv4,
+            Ipv4Address s5s8_gtpu_ipv4,
             Long s1u_sgw_gtpu_teid,  // Although this is intended to be a Uint32
             Long clientIdentifier,
             BigInteger opIdentifier,
@@ -85,7 +86,7 @@ public class DpnAPI2 {
             )
     {
         create_session(dpn, imsi, IPToDecimal.ipv4ToLong(ue_ip.getValue()),
-                default_ebi, s1u_sgw_gtpu_ipv4, s1u_sgw_gtpu_teid, clientIdentifier, opIdentifier, sessionId);
+                default_ebi, s1u_sgw_gtpu_ipv4, s5s8_gtpu_ipv4, s1u_sgw_gtpu_teid, clientIdentifier, opIdentifier, sessionId);
     }
 
     /**
@@ -106,6 +107,7 @@ public class DpnAPI2 {
             Long ue_ip,
             Short lbi,
             Ipv4Address s1u_sgw_gtpu_ipv4,
+            Ipv4Address s5s8_gtpu_ipv4,
             Long s1u_sgw_gtpu_teid,  // Although this is intended to be a Uint32
             Long clientIdentifier,
             BigInteger opIdentifier,
@@ -114,7 +116,7 @@ public class DpnAPI2 {
             )
     {
         //Create byte[] from arguments
-        ByteBuffer bb = ByteBuffer.allocate(41);
+        ByteBuffer bb = ByteBuffer.allocate(45);
         bb.put(toUint8(dpn))
             .put(CREATE_SESSION_TYPE)
             .put(toUint64(imsi))
@@ -122,6 +124,7 @@ public class DpnAPI2 {
             .put(toUint32(ue_ip))
             .put(toUint32(s1u_sgw_gtpu_teid))
             .put(toUint32(IPToDecimal.ipv4ToLong(s1u_sgw_gtpu_ipv4.getValue())))
+            .put(toUint32(IPToDecimal.ipv4ToLong(s5s8_gtpu_ipv4.getValue())))
             .put(toUint64(BigInteger.valueOf(sessionId)))
             .put(toUint8(ZMQSBListener.getControllerTopic()))
             .put(toUint32(clientIdentifier))

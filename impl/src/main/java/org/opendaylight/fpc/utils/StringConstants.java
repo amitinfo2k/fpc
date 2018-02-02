@@ -42,6 +42,7 @@ public class StringConstants {
 			"                \"ul\": {\n" +
 			"                    \"tunnel-local-address\": \"10.0.0.1\",\n" +
 			"                    \"tunnel-remote-address\": \"10.0.0.2\",\n" +
+			"                    \"tunnel-s5s8-address\": \"10.0.0.3\",\n" +
 			"                    \"mobility-tunnel-parameters\": {\n" +
 			"                        \"tunnel-type\": \"ietf-dmm-threegpp:gtpv1\",\n" +
 			"                        \"tunnel-identifier\": \"5555\"\n" +
@@ -51,6 +52,7 @@ public class StringConstants {
 			"                \"dl\": {\n" +
 			"                    \"tunnel-local-address\": \"10.0.0.1\",\n" +
 			"                    \"tunnel-remote-address\": \"10.0.0.2\",\n" +
+			"                    \"tunnel-s5s8-address\": \"10.0.0.3\",\n" +
 			"                    \"mobility-tunnel-parameters\": {\n" +
 			"                        \"tunnel-type\": \"ietf-dmm-threegpp:gtpv1\",\n" +
 			"                        \"tunnel-identifier\": \"6666\"\n" +

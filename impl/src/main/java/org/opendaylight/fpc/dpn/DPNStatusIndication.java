@@ -27,6 +27,7 @@ public class DPNStatusIndication {
 
     private final Status status;
     private final String key; //nodeId +"/"+ networkId
+    private final String type; //DpnType
     /**
      * Node Reference of the DPN
      */
@@ -38,9 +39,10 @@ public class DPNStatusIndication {
      * @param key - Combination of node id and network id
      */
     public DPNStatusIndication (Status status,
-                                String key) {
+                                String key, String type) {
         this.status = status;
         this.key = key;
+        this.type = type;
     }
 
 
@@ -58,5 +60,13 @@ public class DPNStatusIndication {
      */
     public String getKey() {
         return this.key;
+    }
+
+    /**
+     * Provides DPN Type
+     * @return Type associated to the DPN.
+     */
+    public String getType() {
+        return type;
     }
 }

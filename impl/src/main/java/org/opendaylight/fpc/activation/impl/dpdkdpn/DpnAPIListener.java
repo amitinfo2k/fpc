@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.fpc.activation.cache.transaction.Transaction;
 import org.opendaylight.fpc.activation.cache.transaction.Transaction.OperationStatus;
 import org.opendaylight.fpc.dpn.DPNStatusIndication;
+import org.opendaylight.fpc.dpn.DPNTypeIndication;
 import org.opendaylight.fpc.utils.ErrorLog;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.notify.value.DownlinkDataNotification;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.notify.value.DownlinkDataNotificationBuilder;
@@ -48,7 +49,7 @@ public class DpnAPIListener {
      * @param dpnId - DPN Identifier
      */
     static public void setUlDpnMapping(String key, FpcDpnId dpnId) {
-        LOG.info("Adding DPN Mapping {} => {}", key, dpnId);
+	 LOG.info("Adding DPN Mapping {} => {}", key, dpnId);
         uplinkDpnMap.put(key, dpnId);
     }
 
@@ -66,7 +67,7 @@ public class DpnAPIListener {
      * @param topic - ZMQ Topic
      */
     static public void setTopicToNodeMapping(String key, Short topic){
-    	topicToNodeMap.put(key, topic);
+       topicToNodeMap.put(key, topic);
     }
 
     /**
@@ -96,7 +97,7 @@ public class DpnAPIListener {
 			LOG.info("entry: "+entry.getValue().getString());
 			LOG.info("dpnId: "+dpnId.getString());
     		if(entry.getValue().getString().equals(dpnId.getString())){
-    			return topicToNodeMap.get(entry.getKey());
+			return topicToNodeMap.get(entry.getKey());
     		}
     	}
 		return null;
@@ -108,7 +109,7 @@ public class DpnAPIListener {
      * @return FpcDpnId mapped to the ZeroMQ Topic or null if a mapping is not present
      */
     static public FpcDpnId getMapping(String key) {
-        return uplinkDpnMap.get(key);
+	return uplinkDpnMap.get(key);
     }
 
     /**
@@ -117,22 +118,38 @@ public class DpnAPIListener {
      * @return - A pair with the DPN Id and decoded Object
      */
     public Map.Entry<FpcDpnId, Object> decode(byte[] buf) {
-        if(buf[1] == DPN_REPLY){
+	if(buf[1] == DPN_REPLY){
         	processReply(buf);
         	return null;
         }
         else if (buf[1] == DOWNLINK_DATA_NOTIFICATION) {
-        	short nodeIdLen = buf[18];
-            short networkIdLen = buf[19+nodeIdLen];
-            String key = new String(Arrays.copyOfRange(buf, 19, 19+nodeIdLen)) +"/" + new String(Arrays.copyOfRange(buf, 20+nodeIdLen, 20+nodeIdLen+networkIdLen));
-            return uplinkDpnMap.get(key) == null? null : new AbstractMap.SimpleEntry<FpcDpnId, Object>(uplinkDpnMap.get(key), processDDN(buf,key));
+		short nodeIdLen = buf[18];
+		short networkIdLen = buf[19+nodeIdLen];
+		String key = new String(Arrays.copyOfRange(buf, 19, 19+nodeIdLen)) +"/" + new String(Arrays.copyOfRange(buf, 20+nodeIdLen, 20+nodeIdLen+networkIdLen));
+		return uplinkDpnMap.get(key) == null? null : new AbstractMap.SimpleEntry<FpcDpnId, Object>(uplinkDpnMap.get(key), processDDN(buf,key));
         } else if(buf[1] == DPN_STATUS_INDICATION) {
             DPNStatusIndication.Status status = null;
+	    String  type = "NO_DPN_TYPE";
 
-            short nodeIdLen = buf[8];
-            short networkIdLen = buf[9+nodeIdLen];
-            String key = new String(Arrays.copyOfRange(buf, 9, 9+nodeIdLen)) +"/" + new String(Arrays.copyOfRange(buf, 10+nodeIdLen, 10+nodeIdLen+networkIdLen));
-            LOG.info("Hello Key: "+key);
+            int dpnTypeValue = buf[8];//dpn-type position in content
+            short nodeIdLen = buf[9];
+            short networkIdLen = buf[10+nodeIdLen];
+            //String key = new String(Arrays.copyOfRange(buf, 9, 9+nodeIdLen)) +"/" + new String(Arrays.copyOfRange(buf, 10+nodeIdLen, 10+nodeIdLen+networkIdLen));
+            StringBuilder sb= new StringBuilder();
+		sb.append(new String(Arrays.copyOfRange(buf, 10, 10+nodeIdLen)));
+		sb.append("/");
+		sb.append(new String(Arrays.copyOfRange(buf, 11+nodeIdLen, 11+nodeIdLen+networkIdLen)));
+
+		for(DPNTypeIndication test_type: DPNTypeIndication.values()){
+			if(test_type.getTypeValue() == dpnTypeValue){
+				type = test_type.toString();
+				break;
+			}
+		}
+
+		//Add dpn-type date in here similar to networkid and nodeid
+		String key= sb.toString();
+	    LOG.info("Hello Key: "+key);
             if (buf[3] ==  DPN_OVERLOAD_INDICATION) {
                 status = DPNStatusIndication.Status.OVERLOAD_INDICATION;
             } else if (buf[3] ==  DPN_HELLO) {
@@ -142,7 +159,7 @@ public class DpnAPIListener {
                 status = DPNStatusIndication.Status.BYE;
                 removeTopicToNodeMapping(key);
             }
-            return new AbstractMap.SimpleEntry<FpcDpnId, Object>(uplinkDpnMap.get(key), new DPNStatusIndication(status, key));
+            return new AbstractMap.SimpleEntry<FpcDpnId, Object>(uplinkDpnMap.get(key), new DPNStatusIndication(status, key, type));
         }
         return null;
     }
@@ -249,3 +266,4 @@ public class DpnAPIListener {
         return (short) source[offset];
     }
 }
+

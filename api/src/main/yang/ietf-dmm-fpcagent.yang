@@ -145,6 +145,11 @@ module ietf-dmm-fpcagent {
                     uses fpcagent:basename-info;
                   }
               }
+	      list dpn-types {
+		  if-feature fpcbase:fpc-multi-dpn;
+                  key dpn-type-id;
+                  uses fpcagent:fpc-dpn-type;
+	      }
               list dpns {
                   if-feature fpcbase:fpc-multi-dpn;
                   key dpn-id;
@@ -213,6 +218,17 @@ module ietf-dmm-fpcagent {
             uses fpcbase:fpc-dpn-peer-group;
         }
     }
+    grouping fpc-dpn-type {
+	leaf dpn-type-id {
+            type fpcbase:fpc-dpn-type-id;
+        }
+        list dpns{
+           if-feature fpcbase:fpc-multi-dpn;
+           key dpn-id;
+	   uses fpcbase:fpc-dpn;
+	}
+    }
+
 
 
     // RPC

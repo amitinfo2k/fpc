@@ -10,6 +10,7 @@ import org.opendaylight.fpc.policy.BasePolicyManager;
 import org.opendaylight.fpc.policy.BasePortManager;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +55,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev1608
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.mobility.PortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.mobility.PortsKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.topology.Dpns;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.topology.DpnTypes;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcContextId;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcDpnControlProtocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.topology.DpnsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.topology.DpnsKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.topology.DpnTypesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.tenants.tenant.fpc.topology.DpnTypesKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcDpnControlProtocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcDpnGroupId;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcDpnTypeId;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcDpnId;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcDpn;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcIdentity;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcbase.rev160803.FpcPortId;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -382,21 +388,24 @@ public class TenantManager implements AutoCloseable {
      * @param nodeId - node id of the DPN
      * @param networkId - network id of the DPN
      */
-    public void addDpnToDataStore(String nodeId, String networkId) {
-    	//if add = true, add dpn, if add = false, remove dpn
-    	if(tenant != null){
-    		FpcTopology topo = tenant.getFpcTopology();
-            if (topo != null) {
-            	if(getDpnId(nodeId,networkId)!=null){
-    				return;
-    			}
-            	while(dpnIdExists("dpn"+String.valueOf(++dpnIdCounter)));
 
-			    writeDpnToDataStore(LogicalDatastoreType.CONFIGURATION,"dpn"+String.valueOf(dpnIdCounter),"site1-anchor"+String.valueOf(dpnIdCounter),"foo",nodeId,networkId);
-			    writeDpnToDataStore(LogicalDatastoreType.OPERATIONAL,"dpn"+String.valueOf(dpnIdCounter),"site1-anchor"+String.valueOf(dpnIdCounter),"foo",nodeId,networkId);
+    public void addDpnToDataStore(String nodeId, String networkId, String dpnType) {
+        //if add = true, add dpn, if add = false, remove dpn
+        if(tenant != null){
+                FpcTopology topo = tenant.getFpcTopology();
+            if (topo != null) {
+                if(getDpnId(nodeId,networkId)!=null){
+                                return;
+                        }
+                while(dpnIdExists("dpn"+String.valueOf(++dpnIdCounter)));
+
+                            writeDpnToDataStore(LogicalDatastoreType.CONFIGURATION,"dpn"+String.valueOf(dpnIdCounter),"site1-anchor"+String.valueOf(dpnIdCounter),"foo", dpnType, nodeId, networkId);
+                            writeDpnToDataStore(LogicalDatastoreType.OPERATIONAL,"dpn"+String.valueOf(dpnIdCounter),"site1-anchor"+String.valueOf(dpnIdCounter), "foo", dpnType, nodeId, networkId);
             }
-    	}
+        }
     }
+
+
 
     /**
      * Removes a DPN from both data stores
@@ -424,6 +433,7 @@ public class TenantManager implements AutoCloseable {
     	}
     	return null;
     }
+
     /**
      * Removes a DPN from the data store
      * @param dsType - Data store type
@@ -439,21 +449,62 @@ public class TenantManager implements AutoCloseable {
     			if(dpnId == null)
     				return;
     			ReadWriteTransaction dpnTx = dataBroker.newReadWriteTransaction();
-
-    			try {
+			try {
     				Optional<Dpns> dpn = dpnTx.read(dsType, InstanceIdentifier.builder(Tenants.class)
 						.child(Tenant.class, tenant.getKey())
 						.child(FpcTopology.class)
 						.child(Dpns.class, new DpnsKey(new FpcDpnId(dpnId)))
 						.build()).get();
 
+				 dpnTx.delete(dsType, InstanceIdentifier.builder(Tenants.class)
+                                                .child(Tenant.class, tenant.getKey())
+                                                .child(FpcTopology.class)
+                                                .child(Dpns.class, new DpnsKey(new FpcDpnId(dpnId)))
+                                                .build());
 
-	    			dpnTx.delete(dsType, InstanceIdentifier.builder(Tenants.class)
+				Optional<DpnTypes> dpnType = dpnTx.read(dsType, InstanceIdentifier.builder(Tenants.class)
+                                                .child(Tenant.class, tenant.getKey())
+                                                .child(FpcTopology.class)
+                                                .child(DpnTypes.class, new DpnTypesKey(new FpcDpnTypeId(dpn.get().getDpnType())))
+                                                .build()).get();
+
+				if(dpnType.isPresent()){
+				ArrayList<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns> dpns_in_dpnType = new  ArrayList<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns>(dpnType.get().getDpns());
+
+				Iterator itr = dpns_in_dpnType.iterator();
+				while (itr.hasNext())
+				{
+						org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns x = (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns)itr.next();
+
+					if (x.getDpnId().equals(dpnId)){
+						itr.remove();
+					  break;
+					}
+				}
+				if(dpns_in_dpnType == null || dpns_in_dpnType.size() <= 0){
+					dpnTx.delete(dsType, InstanceIdentifier.builder(Tenants.class)
+                                                .child(Tenant.class, tenant.getKey())
+                                                .child(FpcTopology.class)
+                                                .child(DpnTypes.class, new DpnTypesKey(new FpcDpnTypeId(dpn.get().getDpnType())))
+                                                .build());
+				}
+				else{
+					dpnTx.delete(dsType, InstanceIdentifier.builder(Tenants.class)
+                                                .child(Tenant.class, tenant.getKey())
+                                                .child(FpcTopology.class)
+                                                .child(DpnTypes.class, new DpnTypesKey(new FpcDpnTypeId(dpn.get().getDpnType())))
+                                                .build());
+					dpnTx.put(dsType, InstanceIdentifier.builder(Tenants.class)
 						.child(Tenant.class, tenant.getKey())
 						.child(FpcTopology.class)
-						.child(Dpns.class, new DpnsKey(new FpcDpnId(dpnId)))
+						.child(DpnTypes.class, new DpnTypesKey(new FpcDpnTypeId(dpn.get().getDpnType())))
+						.build(),
+						new DpnTypesBuilder()
+						.setDpns(dpns_in_dpnType)
+						.setDpnTypeId(new FpcDpnTypeId(dpn.get().getDpnType()))
 						.build());
-
+				}
+				}
 	    			CheckedFuture<Void,TransactionCommitFailedException> submitFuture = dpnTx.submit();
 
 	    			Futures.addCallback(submitFuture, new FutureCallback<Void>() {
@@ -475,11 +526,12 @@ public class TenantManager implements AutoCloseable {
 	    	            			.setDpnStatus(DpnStatusValue.DpnStatus.Unavailable)
 	    	            			.setDpnId(new FpcDpnId(dpnId))
 	    	            			.setDpnGroups(dpn.get().getDpnGroups())
+						.setDpnType(dpn.get().getDpnType())
 	    	            			.setDpnName(dpn.get().getDpnName())
 	    	            			.setNetworkId(networkId)
 	    	    					.setNodeId(nodeId)
 	    	            			.build()
-	    	            			);
+						);
 	    	            }
 
 	    	            @Override
@@ -510,16 +562,48 @@ public class TenantManager implements AutoCloseable {
      * @param dpnId - Dpn Id
      * @param dpnName - Dpn Name
      * @param dpnGroupId - Dpn Group Id
+     * @param dpnType - Dpn Type Id
      * @param nodeId - Node Id
      * @param networkId - Network Id
      */
-    private void writeDpnToDataStore(LogicalDatastoreType dsType, String dpnId, String dpnName, String dpnGroupId, String nodeId, String networkId) {
+    private void writeDpnToDataStore(LogicalDatastoreType dsType, String dpnId, String dpnName, String dpnGroupId, String dpnTypeId, String nodeId, String networkId) {
 		if(dataBroker != null){
 
-			WriteTransaction dpnTx = dataBroker.newWriteOnlyTransaction();
-
+			//WriteTransaction dpnTx = dataBroker.newWriteOnlyTransaction();
 			ArrayList<FpcDpnGroupId> dpnGroups= new ArrayList<FpcDpnGroupId>();
 			dpnGroups.add(new FpcDpnGroupId(dpnGroupId));
+
+			ArrayList<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns> dpns = null;
+			ReadWriteTransaction dpnTx = dataBroker.newReadWriteTransaction();
+                   try {
+				Optional<DpnTypes> dpnType = dpnTx.read(dsType, InstanceIdentifier.builder(Tenants.class)
+							.child(Tenant.class, tenant.getKey())
+							.child(FpcTopology.class)
+							.child(DpnTypes.class, new DpnTypesKey(new FpcDpnTypeId(dpnTypeId)))
+							.build()).get();
+
+			if(dpnType.isPresent()){
+				dpns = new ArrayList<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns>(dpnType.get().getDpns());
+
+			}
+			else{
+                                dpns = new ArrayList<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns>();
+			}
+			org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.Dpns dpnsBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.fpc.dpn.type.DpnsBuilder()
+                                        .setDpnGroups(dpnGroups)
+                                        .setDpnType(new FpcDpnTypeId(dpnTypeId))
+                                        .setDpnName(dpnName)
+                                        .setDpnId(new FpcDpnId(dpnId))
+                                        .setNetworkId(networkId)
+                                        .setNodeId(nodeId)
+                                        .setAbstract(false)
+                                        .build();
+                        dpns.add(dpnsBuilder);
+			}
+			catch(InterruptedException | ExecutionException e){
+				ErrorLog.logError(e.getStackTrace());
+			}
+
 			dpnTx.put(dsType,
 					InstanceIdentifier.builder(Tenants.class)
 					.child(Tenant.class, tenant.getKey())
@@ -528,12 +612,24 @@ public class TenantManager implements AutoCloseable {
 					.build(),
 					new DpnsBuilder()
 					.setDpnGroups(dpnGroups)
+					.setDpnType(new FpcDpnTypeId(dpnTypeId))
 					.setDpnName(dpnName)
 					.setDpnId(new FpcDpnId(dpnId))
 					.setNetworkId(networkId)
 					.setNodeId(nodeId)
 					.setAbstract(false)
 					.build());
+
+			dpnTx.put(dsType,
+					InstanceIdentifier.builder(Tenants.class)
+                                        .child(Tenant.class, tenant.getKey())
+                                        .child(FpcTopology.class)
+                                        .child(DpnTypes.class, new DpnTypesKey(new FpcDpnTypeId(dpnTypeId)))
+                                        .build(),
+                                        new DpnTypesBuilder()
+                                        .setDpns(dpns)
+					.setDpnTypeId(new FpcDpnTypeId(dpnTypeId))
+                                        .build());
 			CheckedFuture<Void,TransactionCommitFailedException> submitFuture = dpnTx.submit();
 
 			Futures.addCallback(submitFuture, new FutureCallback<Void>() {
@@ -555,6 +651,7 @@ public class TenantManager implements AutoCloseable {
 	            			.setDpnStatus(DpnStatusValue.DpnStatus.Available)
 	            			.setDpnId(new FpcDpnId(dpnId))
 	            			.setDpnGroups(dpnGroups)
+					.setDpnType(new FpcDpnTypeId(dpnTypeId))
 	            			.setDpnName(dpnName)
 	            			.setNetworkId(networkId)
 	    					.setNodeId(nodeId)

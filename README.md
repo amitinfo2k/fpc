@@ -32,7 +32,7 @@ REQUIRED: Before starting this procedure, make sure you install [NGIC](https://g
 2. You can optionally start the listener for the southbound DPN ZeroMQ. This listener displays the messages sent on the southbound end of the controller.
 > ~/fpc/zmqforwarder/python forwarder_subscriber.py
 or
-> ~/fpc/zmqforwarder/python jc.forwarder_subscriber.py --quiet
+> ~/fpc/zmqforwarder/python forwarder_subscriber_sniffer.py --quiet
 
 3. Start OpenDaylight. 
 Change to the bin directory.
@@ -55,12 +55,13 @@ Decide whether you want to run FPC Agent in the foreground or in the background 
 |---------------------------------------|-----------------------------------------|
 |To stop the service                    |`./stop`                                 |
 |Look in this directory for logs        |`cd ~/fpc/karaf/target/assembly/data/log`|
-After starting, check the jc.forwarder_subscriber.py console for controller notification updates.
+After starting, check the forwarder_subscriber_sniffer.py console for controller notification updates.
 5. Run the get-topology script to make sure that the FPC topology state is clear. No DPNs should appear in the result.
 > ~/fpc/scripts/get-topology.sh
 
 * If the FPC topology state shows previously registered DPNs, then run the following script to delete them. 
-> ~/fpc/scripts/delete_all_dpns.sh
+> ~/fpc/scripts/delete_all_dpn_types.sh
+
 * Run the get-topology script again to verify that no DPNs appear in the result.
 
 #### Push Rules to DP over ZeroMQ

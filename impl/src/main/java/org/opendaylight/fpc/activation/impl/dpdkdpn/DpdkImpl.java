@@ -227,7 +227,7 @@ public class DpdkImpl implements Activator {
 				try{
 					api.create_session(dpnTopic, threeProps.getImsi().getValue(),
 						IPToDecimal.cidrBase(assignedPrefix.getIpv4Prefix().getValue()), threeProps.getEbi().getValue(),
-						context.getUl().getTunnelLocalAddress().getIpv4Address(), s1u_sgw_gtpu_teid,clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
+						context.getUl().getTunnelLocalAddress().getIpv4Address(), context.getUl().getTunnelS5s8Address().getIpv4Address(), s1u_sgw_gtpu_teid,clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
 				} catch (Exception e) {
 					ErrorLog.logError("Illegal Arguments - Check Configure Input values",e.getStackTrace());
 				}

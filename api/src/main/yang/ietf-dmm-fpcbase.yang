@@ -262,6 +262,10 @@ module ietf-dmm-fpcbase {
             type inet:ip-address;
             description "Uplink endpoint address of the DPN which agent exists.";
         }
+        leaf tunnel-s5s8-address {
+            type inet:ip-address;
+            description "S5S8 endpoint address of the DPN which agent exists.";
+        }
         leaf lifetime {
             type uint32;
         }
@@ -307,6 +311,9 @@ module ietf-dmm-fpcbase {
         leaf dpn-group {
           type fpcbase:fpc-dpn-group-id;
         }
+	leaf dpn-type {
+	  type fpcbase:fpc-dpn-type-id;
+	}
         leaf-list delegating-ip-prefixes {
             type inet:ip-prefix;
         }
@@ -487,6 +494,9 @@ module ietf-dmm-fpcbase {
         leaf-list dpn-groups {
           type fpcbase:fpc-dpn-group-id;
         }
+	leaf dpn-type {
+	  type fpcbase:fpc-dpn-type-id;
+	}
         leaf node-reference {
           type instance-identifier;
         }
@@ -510,6 +520,10 @@ module ietf-dmm-fpcbase {
     typedef fpc-dpn-group-id {
         type fpcbase:fpc-identity;
         description "DPN Group Identifier";
+    }
+    typedef fpc-dpn-type-id {
+	type fpcbase:fpc-identity;
+        description "DPN Type Identifier";
     }
     identity fpc-forwaridingplane-role {
         description "Role of DPN Group in the Forwarding Plane";
