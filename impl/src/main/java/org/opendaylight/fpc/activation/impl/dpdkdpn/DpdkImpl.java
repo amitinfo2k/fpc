@@ -177,11 +177,11 @@ public class DpdkImpl implements Activator {
 	}
 
 	@Override
-	public void activate(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, OpType opType, Instructions instructions, Contexts context, Cache cache) throws Exception {
+	public void activate(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, OpType opType, Instructions instructions, Contexts context, Cache cache,String timeStamp) throws Exception {
 		// Look for 3GPP Command Instructions or Error out
 		if (instructions != null) {
 			if (instructions.getInstrType() instanceof ThreegppCommandset) {
-				activate(api, clientIdentifier, opIdentifier, opType, (ThreegppCommandset) instructions.getInstrType(), context, cache);
+				activate(api, clientIdentifier, opIdentifier, opType, (ThreegppCommandset) instructions.getInstrType(), context, cache,timeStamp);
 				return;
 			}
 		}
@@ -204,7 +204,7 @@ public class DpdkImpl implements Activator {
 	 * @throws Exception
 	 *             - If an error occurs during the Activation
 	 */
-	private void activate(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, OpType opType, ThreegppCommandset commands, Contexts context, Cache cache) throws Exception {
+	private void activate(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, OpType opType, ThreegppCommandset commands, Contexts context, Cache cache,String timeStamp) throws Exception {
 		this.dpnTopic = DpnAPIListener.getTopicFromNode(this.dpnHolder.dpn.getNodeId().toString()+"/"+this.dpnHolder.dpn.getNetworkId().toString());
 		rxMessages.incrementAndGet();
 		IpPrefix assignedPrefix = (context.getDelegatingIpPrefixes() == null) ? null
@@ -228,6 +228,8 @@ public class DpdkImpl implements Activator {
 					api.create_session(dpnTopic, threeProps.getImsi().getValue(),
 						IPToDecimal.cidrBase(assignedPrefix.getIpv4Prefix().getValue()), threeProps.getEbi().getValue(),
 						context.getUl().getTunnelLocalAddress().getIpv4Address(), context.getUl().getTunnelS5s8Address().getIpv4Address(), s1u_sgw_gtpu_teid,clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
+					api.sendTimestamp(timeStamp,2,opIdentifier.getValue(),context.getContextId().getInt64());
+					
 				} catch (Exception e) {
 					ErrorLog.logError("Illegal Arguments - Check Configure Input values",e.getStackTrace());
 				}
@@ -364,7 +366,7 @@ public class DpdkImpl implements Activator {
 	}
 
 	@Override
-	public void delete(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, Instructions instructions, Targets target, FpcContext context) throws Exception {
+	public void delete(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, Instructions instructions, Targets target, FpcContext context,String timeStamp) throws Exception {
 		this.dpnTopic = DpnAPIListener.getTopicFromNode(this.dpnHolder.dpn.getNodeId().toString()+"/"+this.dpnHolder.dpn.getNetworkId().toString());
 		rxMessages.incrementAndGet();
 		Long teid = (context.getUl().getMobilityTunnelParameters().getMobprofileParameters() instanceof ThreeGPPTunnel)

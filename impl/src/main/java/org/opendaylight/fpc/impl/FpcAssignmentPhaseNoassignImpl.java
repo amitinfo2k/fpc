@@ -30,6 +30,7 @@ import org.opendaylight.fpc.activation.cache.transaction.Transaction.OperationSt
 import org.opendaylight.fpc.activation.workers.ActivationThreadPool;
 import org.opendaylight.fpc.activation.workers.ConfigureWorker;
 import org.opendaylight.fpc.activation.workers.MonitorWorker;
+import org.opendaylight.fpc.netty.ConfigResponseService;
 import org.opendaylight.fpc.utils.ErrorLog;
 import org.opendaylight.fpc.utils.ErrorTypeIndex;
 import org.opendaylight.fpc.utils.FpcCodecUtils;
@@ -310,8 +311,10 @@ public class FpcAssignmentPhaseNoassignImpl extends FpcagentServiceBase {
     	String clientUri = NBEventWorker.clientIdToUri.get(input.getClientId().getInt64().intValue());
 
     	if(clientUri != null && outputString != null)
-    		ConfigureService.blockingQueue.add(new AbstractMap.SimpleEntry(clientUri, new AbstractMap.SimpleEntry(tx,"event:application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+outputString+"\r\n")));
+    		ConfigResponseService.clientUriToOutputQueue.offer(new AbstractMap.SimpleEntry(clientUri, new AbstractMap.SimpleEntry(tx,"event:application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+outputString+"\r\n")));
 
+    		//ConfigureService.blockingQueue.add(new AbstractMap.SimpleEntry(clientUri, new AbstractMap.SimpleEntry(tx,"event:application/json;/restconf/operations/ietf-dmm-fpcagent:configure\ndata:"+outputString+"\r\n")));
+    		
         return Futures.immediateFuture(RpcResultBuilder.<ConfigureOutput>success().build());
     }
 

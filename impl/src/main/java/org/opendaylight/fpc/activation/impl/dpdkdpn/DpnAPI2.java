@@ -41,6 +41,7 @@ public class DpnAPI2 {
     private static byte BYE = 0b0000_1001;
     private static byte SEND_ADC_TYPE = 0b001_0001;
     private static byte DDN_ACK = 0b0000_0110;
+    private static Short TIME_STAMP_TOPIC = 1001;
 	protected static final Logger LOG = LoggerFactory.getLogger(DpnAPI2.class);
     /**
      * Topic for broadcasting
@@ -168,6 +169,22 @@ public class DpnAPI2 {
         } catch (InterruptedException e) {
         	ErrorLog.logError(e.getStackTrace());
         };
+    }
+    
+    public void sendTimestamp(
+            String timeStamp,Integer operation,BigInteger opId, Long contextId 
+            )
+    {
+
+    	String msg=new StringBuilder().append(TIME_STAMP_TOPIC).append(" ").append(timeStamp).append(",ZMQE:").append(System.currentTimeMillis()).append(" ").append(operation).append(" ").append(opId).append(" ").append(contextId).toString();
+        ByteBuffer bb=ByteBuffer.allocate(msg.getBytes().length);
+    	bb.put(msg.getBytes());    	
+        try {
+        	sock.getBlockingQueue().put(bb);
+        } catch (Exception e) {
+        	ErrorLog.logError(e.getStackTrace());
+        };
+    
     }
 
     /**

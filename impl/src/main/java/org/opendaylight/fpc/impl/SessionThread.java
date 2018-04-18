@@ -70,16 +70,16 @@ public class SessionThread implements Runnable {
                 	if(op == DpnOperation.Add){
                 		LOG.info("Copying existing sessions to newly added DPN");
                 		dpnInfo.activator.activate(api, input.getClientId(), input.getOpId(), input.getOpType(), (context.getInstructions() != null) ?
-                                context.getInstructions() : input.getInstructions(), context, contextInfoHolder.payloadCache);
+                                context.getInstructions() : input.getInstructions(), context, contextInfoHolder.payloadCache,input.getTimestamp());
                 	}else if(op == DpnOperation.Remove){
                 		LOG.info("Deleting existing sessions from removed DPN");
 	                	if(deleteFlag){
-	                		dpnInfo.activator.delete(api, input.getClientId(), input.getOpId(), input.getInstructions(), null, context);
+	                		dpnInfo.activator.delete(api, input.getClientId(), input.getOpId(), input.getInstructions(), null, context,input.getTimestamp());
 	                		contextInfoHolder.tenantManager.getSc().remove(targetPrefix+context.getContextId().getString());
 	                		TenantManager.vdpnContextsMap.get(vdpn.getDpnId()).remove(context);
 	               			it = TenantManager.vdpnContextsMap.get(vdpn.getDpnId()).entrySet().iterator();
 	               		}else{
-	                		dpnInfo.activator.delete(api, input.getClientId(), input.getOpId(), input.getInstructions(), null, context);
+	                		dpnInfo.activator.delete(api, input.getClientId(), input.getOpId(), input.getInstructions(), null, context,input.getTimestamp());
 	                	}
                 	}
                 } catch (Exception e) {

@@ -33,6 +33,7 @@ import org.opendaylight.fpc.impl.zeromq.ZMQSBListener;
 import org.opendaylight.fpc.impl.zeromq.ZMQSBMessagePool;
 import org.opendaylight.fpc.monitor.Events;
 import org.opendaylight.fpc.monitor.ScheduledMonitors;
+import org.opendaylight.fpc.netty.FPCSSEServer;
 import org.opendaylight.fpc.notification.HTTPClientPool;
 import org.opendaylight.fpc.tenant.TenantManager;
 import org.opendaylight.fpc.utils.ErrorLog;
@@ -115,7 +116,7 @@ public class FpcProvider implements AutoCloseable {
         this.dataBroker = dataBroker;
         this.rpcRegistryDependency = rpcRegistryDependency;
         this.notificationService = notificationService;
-        this.config = config;
+//        this.config = config;
 
         if (config == null) {
             throw new Exception("FpcProvider - configuration has not been set! Exiting...");
@@ -220,7 +221,10 @@ public class FpcProvider implements AutoCloseable {
 
         fpcService = null;
         assignmentService = null;
-        jettyServer = new Thread ( new Runnable(){
+  
+        new FPCSSEServer().start();
+       
+       /* jettyServer = new Thread ( new Runnable(){
 			@Override
 			public void run() {
 				JettyServer.init();
@@ -228,6 +232,7 @@ public class FpcProvider implements AutoCloseable {
         });
         jettyServer.start();
 
+        
         parseStreamThread = new Thread(new ParseStream());
         parseStreamThread.start();
 
@@ -240,6 +245,7 @@ public class FpcProvider implements AutoCloseable {
             close();
             throw new Exception("FpcProvider - Error during start/run for NB Event Pool. Exiting...");
         }
+        */
         LOG.info("FpcProvider - Constructor Complete");
     }
 

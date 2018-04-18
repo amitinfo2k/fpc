@@ -39,7 +39,7 @@ public interface Activator {
      * @param cache - Cache configured per the RPC operation (@see FPC Op-Reference).
      * @throws Exception - If an error occurs during the Activation
      */
-    public void activate(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, OpType opType, Instructions instructions, Contexts context, Cache cache) throws Exception;
+    public void activate(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, OpType opType, Instructions instructions, Contexts context, Cache cache,String timeStamp) throws Exception;
 
     /**
      * Activates a Context.
@@ -77,7 +77,7 @@ public interface Activator {
      * @param context - Context that is associated with the Target
      * @throws Exception - If an error occurs during the deletion
      */
-    public void delete(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, Instructions instructions, Targets target, FpcContext context) throws Exception;
+    public void delete(DpnAPI2 api, ClientIdentifier clientIdentifier, OpIdentifier opIdentifier, Instructions instructions, Targets target, FpcContext context,String timeStamp) throws Exception;
 
     /**
      * Reads A Target from the DPN.

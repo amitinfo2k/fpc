@@ -356,6 +356,9 @@ module ietf-dmm-fpcagent {
       leaf op-id {
         type op-identifier;
       }
+      leaf timestamp {
+          type string;
+      }
       choice op_body {
         case create_or_update {
           list clones {

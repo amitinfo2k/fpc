@@ -13,9 +13,9 @@ import java.util.Collection;
 
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.fpc.impl.FpcServiceImpl;
+import org.opendaylight.fpc.netty.NotificationService;
 import org.opendaylight.fpc.utils.ErrorLog;
 import org.opendaylight.fpc.utils.FpcCodecUtils;
-import org.opendaylight.fpc.utils.eventStream.NotificationService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.ClientIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.ConfigResultNotification;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.fpcagent.rev160803.ConfigResultNotificationBuilder;
@@ -109,7 +109,14 @@ public class Notifier {
     		        true);
             streamString = streamString.replace("\n","");
             streamString = "event:application/json;/notification\ndata:"+streamString+"\n";
-            NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
+            
+            //NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
+            
+            NotificationService.notificationQueue
+            .offer(new AbstractMap.SimpleEntry<>(clientId.getInt64()+"",streamString));
+
+            
+            //TODO need to investigate
             if (issueInternal &&
                     (notificationService != null)) {
                 notificationService.putNotification(result);
@@ -169,8 +176,11 @@ public class Notifier {
         streamString = streamString.replace("\n", "");
         streamString = "event:application/json;/notification\ndata:"+streamString+"\n";
         try {
-			NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(ddn.getClientId().getInt64().toString(),streamString));
-		} catch (InterruptedException e) {
+			//NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(ddn.getClientId().getInt64().toString(),streamString));
+        	  NotificationService.notificationQueue
+              .offer(new AbstractMap.SimpleEntry<>(ddn.getClientId().getInt64()+"",streamString));
+
+		} catch (Exception e) {
 			ErrorLog.logError(e.getLocalizedMessage(),e.getStackTrace());
 		}
     }
@@ -194,8 +204,11 @@ public class Notifier {
             streamString = "event:application/json;/notification\ndata:"+streamString+"\n";
 
             try {
-				NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
-			} catch (InterruptedException e) {
+				//NotificationService.blockingQueue.put(new AbstractMap.SimpleEntry<String,String>(clientId.getInt64().toString(),streamString));
+            	  NotificationService.notificationQueue
+                  .offer(new AbstractMap.SimpleEntry<>(clientId.getInt64()+"",streamString));
+
+			} catch (Exception e) {
 				ErrorLog.logError(e.getLocalizedMessage(),e.getStackTrace());
 			}
     	}
