@@ -47,7 +47,7 @@ public class ResponseStreamHandler extends ChannelInboundHandlerAdapter {
 	private Gson gson = new Gson();
 	// TODO support multi-client
 	// Key = Client URL , Value = Channel context
-	public static Map<String, ChannelHandlerContext> clientURIContextMap = new ConcurrentHashMap<>();
+	
 	// Key = Client ID , Value = Channel context
 //	public static Map<String, ChannelHandlerContext> clientNotifyContextMap = new ConcurrentHashMap<>();
 
@@ -84,8 +84,9 @@ public class ResponseStreamHandler extends ChannelInboundHandlerAdapter {
 				
 				fpcClient.start();				
 				FPCSSEServer.clientMap.put(ctx, fpcClient);			
-				clientURIContextMap.put(clientURL, ctx);// TODO handle client context map
-                                new ConfigResponseService().start();	
+				new ConfigResponseService().start();
+				ConfigResponseService.clientURIContextMap.put(clientURL, ctx);
+                                	
 
 			} //
 			else if(URI_NOTIFICATION.equals(request.getUri())){
