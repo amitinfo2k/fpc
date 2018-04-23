@@ -7,9 +7,6 @@
  */
 package org.opendaylight.fpc.netty.client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -18,15 +15,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
-
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.oio.OioSocketChannel;
-
-import io.netty.channel.FixedRecvByteBufAllocator;
-import io.netty.channel.RecvByteBufAllocator;
-import io.netty.channel.ChannelOption;
 
 
 public final class FPCClient extends Thread {
@@ -94,26 +84,22 @@ public final class FPCClient extends Thread {
 			strB.append("connection: Keep-Alive\n");
 			strB.append("cache-control: no-cache, no-store\r\n");
 			strB.append("\r\n");
-            ch.writeAndFlush(Unpooled.copiedBuffer(strB.toString().getBytes()));
+           
+			ch.writeAndFlush(Unpooled.copiedBuffer(strB.toString().getBytes()));
             //Put currentThread in deadlock until someone kill or interrupt it
             Thread.currentThread().join();
                       
 
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		//} catch (IOException e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
+			e.printStackTrace();		
 		} finally {
 			// Shut down executor threads to exit.
 			group.shutdownGracefully();
             try {
-                channel.channel().closeFuture().sync();
-            } catch (InterruptedException e) {
+            	if(channel!=null)
+            		channel.channel().closeFuture().sync();
+            } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }

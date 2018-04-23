@@ -10,6 +10,8 @@ package org.opendaylight.fpc.utils.zeromq;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 
 import org.opendaylight.fpc.utils.ErrorLog;
 import org.slf4j.Logger;
@@ -20,9 +22,9 @@ import org.zeromq.ZContext;
  * ZMQ Client Socket.
  */
 public class ZMQClientSocket extends ZMQBaseSocket {
-    private static final Logger LOG = LoggerFactory.getLogger(ZMQClientSocket.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZMQClientSocket.class);
     private BlockingQueue<ByteBuffer> blockingQueue;
-
+    private static AtomicLong entrants = new AtomicLong(0L);
     /**
      * Client Constructor.
      *
@@ -69,12 +71,20 @@ public class ZMQClientSocket extends ZMQBaseSocket {
 	@Override
     public void run() {
         this.run = true;
-        LOG.info("ZMQClientSocket RUN started - awaiting start signal");
+        logger.info("ZMQClientSocket RUN started - awaiting start signal");
         try {
             startSignal.await();
             while(run) {
                 ByteBuffer bb = blockingQueue.take();
                 socket.send(bb.array());
+                
+                long entries = entrants.incrementAndGet();
+                if ((entries % 500) == 0) {
+                        logger.info("[Amit] ZMQ Entries written = {}  ", entries);
+                        if ((entries % 4000) == 0){
+                                LockSupport.parkNanos(1000);                                
+                        }
+                }//               
             }
         } catch (InterruptedException e) {
         	ErrorLog.logError(e.getStackTrace());

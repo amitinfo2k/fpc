@@ -283,7 +283,7 @@ public class Transaction {
      */
     protected Transaction(OpInput input, long startTime) throws EmptyBodyException {
         init(input, null, startTime);
-    	LOG.info(input.getClientId() + "/" + input.getOpId().toString());
+    	LOG.debug(input.getClientId() + "/" + input.getOpId().toString());
         transactions.put(input.getClientId() + "/" + input.getOpId().toString(), this);
     }
 

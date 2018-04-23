@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * Manager for changes to virtual ports
  */
 public class BasePortManager extends PortManager implements AutoCloseable{
-	private static final Logger LOG = LoggerFactory.getLogger(BasePolicyManager.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BasePortManager.class);
 
 	private final TenantManager tenantMgr;
 	private final DataBroker dataBroker;
@@ -59,7 +59,7 @@ public class BasePortManager extends PortManager implements AutoCloseable{
      */
     @Override
     public void addContext(Contexts cntx) throws Exception {
-    	LOG.info("Connecting Port and DPN...");
+    	LOG.debug("Connecting Port and DPN...");
     	if(cntx.getPorts()!=null && cntx.getDpns()!=null){
     		LOG.info("Contextid: "+cntx.getContextId());
     		LOG.info("cntx.getPorts(): "+cntx.getPorts());
@@ -99,7 +99,7 @@ public class BasePortManager extends PortManager implements AutoCloseable{
     			dpnHolder.activator.send_ADC_rules(DpnAPIListener.getTopicFromDpnId(dpn.getDpnId()), port);
     		}
     	}else{
-    		LOG.warn("Port/DPN mapping couldn't be established, make sure context has both a port and a DPN");
+    		LOG.debug("Port/DPN mapping couldn't be established, make sure context has both a port and a DPN");
     	}
 	}
 

@@ -128,7 +128,7 @@ public abstract class PortManager implements AutoCloseable {
          @Override
          public void onDataTreeChanged(Collection<DataTreeModification<Contexts>> changes) {
              for (DataTreeModification<Contexts> cntxModification : changes) {
-                 LOG.info("Descriptor Change has occured for Tenant-Id {} / Descriptor-Id {}",tenantId,
+                 LOG.debug("Descriptor Change has occured for Tenant-Id {} / Descriptor-Id {}",tenantId,
                          cntxModification.getRootPath().toString());
                  if (cntxModification.getRootNode().getModificationType() == ModificationType.DELETE) {
                      removeContext(cntxModification.getRootNode().getDataBefore());

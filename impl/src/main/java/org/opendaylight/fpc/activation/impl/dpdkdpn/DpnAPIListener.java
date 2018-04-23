@@ -94,8 +94,8 @@ public class DpnAPIListener {
      */
     static public Short getTopicFromDpnId(FpcDpnId dpnId){
 		for(Entry<String, FpcDpnId> entry : uplinkDpnMap.entrySet()){
-			LOG.info("entry: "+entry.getValue().getString());
-			LOG.info("dpnId: "+dpnId.getString());
+			LOG.debug("entry: "+entry.getValue().getString());
+			LOG.debug("dpnId: "+dpnId.getString());
     		if(entry.getValue().getString().equals(dpnId.getString())){
 			return topicToNodeMap.get(entry.getKey());
     		}
@@ -200,7 +200,7 @@ public class DpnAPIListener {
     public void processReply(byte[] buf){
     	ClientIdentifier ClientId = new ClientIdentifier(fromIntToLong(buf, 3));
 		OpIdentifier OpId = new OpIdentifier(BigInteger.valueOf(fromIntToLong(buf, 7)));
-		LOG.info(ClientId+"/"+OpId);
+		LOG.debug(ClientId+"/"+OpId);
 		Transaction t = Transaction.get(ClientId+"/"+OpId.toString());
 		if(t != null){
 			t.setStatus(OperationStatus.DPN_RESPONSE_PROCESSED, System.currentTimeMillis());

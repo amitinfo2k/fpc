@@ -39,7 +39,8 @@ public class FPCSSEServer
     private ChannelFuture channel;
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup slaveGroup;
-   
+    private ConfigResponseService configRespService;
+    private Thread notifyService;
     
     public FPCSSEServer()
     {
@@ -52,7 +53,11 @@ public class FPCSSEServer
         
         //masterGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(1) : new NioEventLoopGroup(1);
         //slaveGroup = Epoll.isAvailable() ? new EpollEventLoopGroup(2) : new NioEventLoopGroup(2);
-            
+        configRespService= new ConfigResponseService();
+        configRespService.start();
+        notifyService = new Thread(new NotificationService());
+        notifyService.start();   
+        
     }
 
     public void start()

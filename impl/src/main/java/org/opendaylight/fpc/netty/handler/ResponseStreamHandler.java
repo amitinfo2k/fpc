@@ -83,10 +83,8 @@ public class ResponseStreamHandler extends ChannelInboundHandlerAdapter {
 				ctx.writeAndFlush(response);
 				
 				fpcClient.start();				
-				FPCSSEServer.clientMap.put(ctx, fpcClient);			
-				new ConfigResponseService().start();
-				ConfigResponseService.clientURIContextMap.put(clientURL, ctx);
-                                	
+				FPCSSEServer.clientMap.put(ctx, fpcClient);				
+				ConfigResponseService.clientURIContextMap.put(clientURL, ctx);                                	
 
 			} //
 			else if(URI_NOTIFICATION.equals(request.getUri())){
@@ -103,7 +101,7 @@ public class ResponseStreamHandler extends ChannelInboundHandlerAdapter {
 				headers.set(HttpHeaders.Names.CACHE_CONTROL,"no-cache, no-store");
 				headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
 				ctx.writeAndFlush(response);				
-				new Thread(new NotificationService()).start();			
+							
 				NotificationService.clientNotifyContextMap.put(clientId, ctx);
 				System.out.println("notification stream request received : "+clientId);
 			}//

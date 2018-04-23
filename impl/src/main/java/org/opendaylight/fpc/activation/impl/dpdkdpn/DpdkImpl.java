@@ -228,7 +228,7 @@ public class DpdkImpl implements Activator {
 					api.create_session(dpnTopic, threeProps.getImsi().getValue(),
 						IPToDecimal.cidrBase(assignedPrefix.getIpv4Prefix().getValue()), threeProps.getEbi().getValue(),
 						context.getUl().getTunnelLocalAddress().getIpv4Address(), context.getUl().getTunnelS5s8Address().getIpv4Address(), s1u_sgw_gtpu_teid,clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
-					api.sendTimestamp(timeStamp,2,opIdentifier.getValue(),context.getContextId().getInt64());
+					api.sendTimestamp(timeStamp,1,opIdentifier.getValue(),context.getContextId().getInt64());
 					
 				} catch (Exception e) {
 					ErrorLog.logError("Illegal Arguments - Check Configure Input values",e.getStackTrace());
@@ -249,6 +249,7 @@ public class DpdkImpl implements Activator {
 								"Session Create with implied DL information but no DL Tunnel Info provided");
 					api.modify_bearer_dl(dpnTopic, s1u_sgw_gtpu_teid,
 							context.getDl().getTunnelRemoteAddress().getIpv4Address(), s1u_enb_gtpu_teid,clientIdentifier.getInt64(), opIdentifier.getValue());
+					api.sendTimestamp(timeStamp,2,opIdentifier.getValue(),context.getContextId().getInt64());
 					txMessages.incrementAndGet();
 				}
 			} else if (commands.getInstr3gppMob().isIndirectForward()) {
@@ -294,6 +295,7 @@ public class DpdkImpl implements Activator {
 					try {
 						api.modify_bearer_dl(dpnTopic, context.getDl().getTunnelRemoteAddress().getIpv4Address(),
 							s1u_enb_gtpu_teid, context.getDl().getTunnelLocalAddress().getIpv4Address(), null, clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
+						api.sendTimestamp(timeStamp,2,opIdentifier.getValue(),context.getContextId().getInt64());
 					} catch (Exception e) {
 						ErrorLog.logError(e.getMessage(),e.getStackTrace());
 					}
@@ -318,6 +320,7 @@ public class DpdkImpl implements Activator {
 							.getMobprofileParameters()).getTunnelIdentifier();
 					api.modify_bearer_ul(dpnTopic, context.getUl().getTunnelLocalAddress().getIpv4Address(),
 							s1u_enb_gtpu_teid, s1u_sgw_gtpu_teid, null);
+					api.sendTimestamp(timeStamp,2,opIdentifier.getValue(),context.getContextId().getInt64());
 				} else {
 					s1u_enb_gtpu_lifeTime = context.getUl().getLifetime();
 					if (s1u_enb_gtpu_lifeTime == 0L)
@@ -347,6 +350,7 @@ public class DpdkImpl implements Activator {
 				// LOG.info("Sending Message");
 				try {
 					api.delete_session(dpnTopic, threeProps.getLbi().getValue(), s1u_sgw_gtpu_teid, clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
+					api.sendTimestamp(timeStamp,3,opIdentifier.getValue(),context.getContextId().getInt64());
 				} catch (Exception e) {
 					ErrorLog.logError("Illegal Arguments - Check Configure Input values",e.getStackTrace());
 				}
@@ -385,6 +389,7 @@ public class DpdkImpl implements Activator {
 			if (context.getLbi() != null) {
 				try{
 					api.delete_session(dpnTopic, context.getLbi().getValue(), teid, clientIdentifier.getInt64(), opIdentifier.getValue(), context.getContextId().getInt64());
+					api.sendTimestamp(timeStamp,3,opIdentifier.getValue(),context.getContextId().getInt64());
 				} catch (Exception e) {
 					ErrorLog.logError("Illegal Arguments - Check Configure Input values",e.getStackTrace());
 				}

@@ -265,7 +265,7 @@ public abstract class PolicyManager implements AutoCloseable {
         @Override
         public void onDataTreeChanged(Collection<DataTreeModification<Policies>> changes) {
             for (DataTreeModification<Policies> policyModification : changes) {
-                LOG.info("Policy Change has occured for Tenant-Id {} / Policy-Id {}",tenantId,
+                LOG.debug("Policy Change has occured for Tenant-Id {} / Policy-Id {}",tenantId,
                         policyModification.getRootPath().toString());
                 if (policyModification.getRootNode().getModificationType() == ModificationType.DELETE) {
                     removePolicy(policyModification.getRootNode().getDataBefore());
