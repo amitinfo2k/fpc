@@ -16,7 +16,7 @@ import java.util.concurrent.locks.LockSupport;
 import org.opendaylight.fpc.utils.ErrorLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zeromq.ZContext;
+//import org.zeromq.ZContext;
 
 import zmq.Ctx;
 import zmq.ZMQ;
@@ -59,15 +59,15 @@ public class ZMQClientSocket extends ZMQBaseSocket {
        
        // socket.setSendTimeOut(5);
        // socket.connect(address);
-//        LOG.info("Socket send buffer size - "+socket.getSendBufferSize());
-//        LOG.info("Socket send HWM - "+socket.getSndHWM());
-//        LOG.info("Socket rate - "+socket.getRate());
-        
-        
+          
     	socket = context.createSocket(ZMQ.ZMQ_PUB);
 		ZMQ.setSocketOption(socket, ZMQ.ZMQ_SNDHWM, 5000);
 		socket.connect(address);
-	
+		   logger.info("Socket send rate size - "+ZMQ.getContextOption(context, ZMQ.ZMQ_RATE));
+	        logger.info("Socket send hwm size - "+ZMQ.getContextOption(context, ZMQ.ZMQ_SNDHWM));
+	        logger.info("Socket send buffer size - "+ZMQ.getContextOption(context, ZMQ.ZMQ_SNDBUF));
+	        
+	   
          
     }
 

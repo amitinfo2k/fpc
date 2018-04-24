@@ -158,7 +158,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 			    <!--  <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency> -->
 			      <Export-Package>
 			          org.opendaylight.fpc.activation,org.opendaylight.fpc.utils.eventStream.*,org.eclipse.jetty.servlet.*,org.eclipse.jetty.http.*,org.eclipse.jetty.*,javax.annotation.*,javax.servlet.*,org.mortbay.*,org.mortbay.log,org.mortbay.util.ajax,org.objectweb.asm,org.objectweb.asm.*,
-			          org.zeromq, zmq, org.apache.commons, org.apache.commons.cli, org.apache.http.*, org.apache.http.client.*, org.apache.log, org.apache.log.*, org.apache.commons.logging.*,org.opendaylight.netconf.sal.rest.impl.*,org.opendaylight.netconf.sal.restconf.impl.*
+			          zmq, org.apache.commons, org.apache.commons.cli, org.apache.http.*, org.apache.http.client.*, org.apache.log, org.apache.log.*, org.apache.commons.logging.*,org.opendaylight.netconf.sal.rest.impl.*,org.opendaylight.netconf.sal.restconf.impl.*
 			      </Export-Package>
 			      <SPI-Consumer>*</SPI-Consumer>
 			      <SPI-Provider>*</SPI-Provider>

@@ -10,11 +10,10 @@ package org.opendaylight.fpc.utils.zeromq;
 import java.util.concurrent.CountDownLatch;
 
 import org.opendaylight.fpc.utils.Worker;
-import org.zeromq.ZContext;
+//import org.zeromq.ZContext;
 
 import zmq.Ctx;
 import zmq.SocketBase;
-import zmq.ZMQ;
 
 /**
  * ZMQ Socket base.

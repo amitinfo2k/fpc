@@ -59,7 +59,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.OperationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zeromq.ZContext;
+//import org.zeromq.ZContext;
 
 import com.google.common.base.Optional;
 
@@ -88,8 +88,7 @@ public class FpcProvider implements AutoCloseable {
     private ZMQSBListener zmqSbListener;
     private WriteToCache wtc;
     private Thread writeToCache;
-    private Thread jettyServer;
-    private Thread parseStreamThread;
+   
     /**
      * Returns the instance of the FpcProvider
      * @return FpcProvider instance

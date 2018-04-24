@@ -13,12 +13,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.fpc.utils.AbstractThreadPool;
-import org.zeromq.ZContext;
-import org.zeromq.ZMQ;
+//import org.zeromq.ZContext;
+//import org.zeromq.ZMQ;
 
 import com.google.common.base.Supplier;
 
 import zmq.Ctx;
+import zmq.ZMQ;
 
 /**
  * Client Pool Manager for ZMQ Client notifications.
