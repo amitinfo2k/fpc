@@ -18,6 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZContext;
 
+import zmq.Ctx;
+import zmq.ZMQ;
+
 /**
  * ZMQ Client Socket.
  */
@@ -34,10 +37,10 @@ public class ZMQClientSocket extends ZMQBaseSocket {
      * @param startSignal - threadpool start signal
      * @param blockingQueue - A byte buffer BlockingQueue assigned to the Client
      */
-    public ZMQClientSocket(ZContext context, String address, int socketType,
+    public ZMQClientSocket(Ctx context, String address, int socketType,
             CountDownLatch startSignal, BlockingQueue<ByteBuffer> blockingQueue) {
         super(context,address,socketType, startSignal);
-        this.context = new ZContext();
+        this.context = ZMQ.createContext();
         this.blockingQueue = blockingQueue;
     }
 
@@ -51,20 +54,29 @@ public class ZMQClientSocket extends ZMQBaseSocket {
 
     @Override
     public void open() {
-        socket = context.createSocket(socketType);
+      //  socket = context.createSocket(socketType);
         //socket.setSndHWM(0);
-        socket.connect(address);
+       
+       // socket.setSendTimeOut(5);
+       // socket.connect(address);
 //        LOG.info("Socket send buffer size - "+socket.getSendBufferSize());
 //        LOG.info("Socket send HWM - "+socket.getSndHWM());
 //        LOG.info("Socket rate - "+socket.getRate());
+        
+        
+    	socket = context.createSocket(ZMQ.ZMQ_PUB);
+		ZMQ.setSocketOption(socket, ZMQ.ZMQ_SNDHWM, 5000);
+		socket.connect(address);
+	
+         
     }
 
     @Override
 	public void close() {
     	this.run = false;
-    	socket.disconnect(address);
+    	//socket.disconnect(address);
     	socket.close();
-    	context.destroySocket(socket);
+    	//context.destroySocket(socket);
 		super.close();
 	}
 
@@ -74,17 +86,19 @@ public class ZMQClientSocket extends ZMQBaseSocket {
         logger.info("ZMQClientSocket RUN started - awaiting start signal");
         try {
             startSignal.await();
+           // boolean result;
             while(run) {
                 ByteBuffer bb = blockingQueue.take();
-                socket.send(bb.array());
-                
+                //result=socket.send(bb.array());
+                int result = ZMQ.send(socket, bb.array(), 0);
                 long entries = entrants.incrementAndGet();
                 if ((entries % 500) == 0) {
                         logger.info("[Amit] ZMQ Entries written = {}  ", entries);
                         if ((entries % 4000) == 0){
                                 LockSupport.parkNanos(1000);                                
                         }
-                }//               
+                }//    
+                 logger.info("[Amit] ZMQ write result {} ",result);
             }
         } catch (InterruptedException e) {
         	ErrorLog.logError(e.getStackTrace());

@@ -9,7 +9,7 @@ package org.opendaylight.fpc.utils.zeromq;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.zeromq.ZContext;
+import zmq.Ctx;
 
 /**
  * ZMQ Server Socket base.
@@ -24,15 +24,15 @@ abstract public class ZMQServerSocket extends ZMQBaseSocket {
      * @param socketType - ZMQ Socket Type
      * @param startSignal - threadpool start signal
      */
-    public ZMQServerSocket(ZContext context, String address, int socketType,  CountDownLatch startSignal) {
+    public ZMQServerSocket(Ctx context, String address, int socketType,  CountDownLatch startSignal) {
         super(context,address,socketType,startSignal);
     }
 
     @Override
     public void open() {
         socket = context.createSocket(socketType); // Should be ZMQ.REP
-        socket.setLinger(0);
-        socket.setReceiveTimeOut(1000);
+      //  socket.setLinger(0);
+      //  socket.setReceiveTimeOut(1000);
         socket.bind(address);
     }
 

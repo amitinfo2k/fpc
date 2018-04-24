@@ -11,19 +11,24 @@ import java.util.concurrent.CountDownLatch;
 
 import org.opendaylight.fpc.utils.Worker;
 import org.zeromq.ZContext;
-import org.zeromq.ZMQ;
+
+import zmq.Ctx;
+import zmq.SocketBase;
+import zmq.ZMQ;
 
 /**
  * ZMQ Socket base.
  */
 abstract public class ZMQBaseSocket implements Worker {
-    protected ZContext context;
+    //protected ZContext context;
+	protected Ctx context;
     protected final String address;
     protected final int socketType;
     protected final CountDownLatch startSignal;
     protected boolean run;
 
-    protected ZMQ.Socket socket;
+  //  protected ZMQ.Socket socket;
+    protected SocketBase socket = null;
 
     /**
      * Worker Constructor.
@@ -33,7 +38,8 @@ abstract public class ZMQBaseSocket implements Worker {
      * @param socketType - ZMQ Socket Type
      * @param startSignal - threadpool start signal
      */
-    public ZMQBaseSocket(ZContext context, String address, int socketType, CountDownLatch startSignal) {
+    public ZMQBaseSocket(Ctx context, String address, int socketType, CountDownLatch startSignal) {
+        //this.context = context;
         this.context = context;
         this.address = address;
         this.socketType = socketType;
@@ -45,7 +51,7 @@ abstract public class ZMQBaseSocket implements Worker {
      * Retrieves the ZMQ Socket associated with the Worker.
      * @return ZMQ.Socket or null otherwise
      */
-    public ZMQ.Socket getSocket() {
+    public SocketBase getSocket() {
         return socket;
     }
 
@@ -62,7 +68,7 @@ abstract public class ZMQBaseSocket implements Worker {
     @Override
     public void close() {
         if (socket != null) {
-            socket.setLinger(0);
+          //  socket.setLinger(0);
             socket.close();
         }
         socket = null;

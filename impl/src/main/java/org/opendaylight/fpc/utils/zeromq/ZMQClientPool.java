@@ -18,6 +18,8 @@ import org.zeromq.ZMQ;
 
 import com.google.common.base.Supplier;
 
+import zmq.Ctx;
+
 /**
  * Client Pool Manager for ZMQ Client notifications.
  */
@@ -31,7 +33,7 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
      * @param address - ZMQ Address
      * @param poolSize - thread pool size
      */
-    public static void createInstance(ZContext context, String address, int poolSize) {
+    public static void createInstance(Ctx context, String address, int poolSize) {
         _instance = new ZMQClientPool(context, address, poolSize);
     }
 
@@ -43,7 +45,8 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
         return _instance;
     }
 
-    private final ZContext context;
+    //private final ZContext context;
+    private final Ctx context;
     private String address;
 
     /**
@@ -53,7 +56,7 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
      * @param address - ZMQ Address
      * @param poolSize - thread pool size
      */
-    protected ZMQClientPool(ZContext context, String address, int poolSize) {
+    protected ZMQClientPool(Ctx context, String address, int poolSize) {
         super(null, poolSize);
         this.context = context;
         this.address = address;
@@ -73,7 +76,7 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
      * 
      * @return ZMQ Context
      */
-    public ZContext getContext() {
+    public Ctx getContext() {
         return context;
     }
 
@@ -93,7 +96,8 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
      * ZMQ Client Factory Supplier
      */
     protected class ZMQClientSocketFactory implements Supplier<ZMQClientSocket> {
-        protected final ZContext context;
+        //protected final ZContext context;
+        protected final Ctx context;
         protected final String address;
         protected final int type;
         protected final CountDownLatch startSignal;
@@ -106,7 +110,7 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
          * @param type - ZMQ Socket Type
          * @param startSignal - threadpool start signal
          */
-        public ZMQClientSocketFactory(ZContext context, String address, int type, CountDownLatch startSignal) {
+        public ZMQClientSocketFactory(Ctx context, String address, int type, CountDownLatch startSignal) {
             this.context = context;
             this.address = address;
             this.type = type;

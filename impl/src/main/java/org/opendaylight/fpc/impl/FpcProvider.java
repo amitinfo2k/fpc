@@ -63,6 +63,8 @@ import org.zeromq.ZContext;
 
 import com.google.common.base.Optional;
 
+import zmq.ZMQ;
+
 /**
  * Fpc Provider implementation.
  */
@@ -132,7 +134,7 @@ public class FpcProvider implements AutoCloseable {
         }
 
         try {
-            ZMQClientPool.createInstance(new ZContext(),
+            ZMQClientPool.createInstance(ZMQ.createContext(),
                     config.getDpnClientUri(),
                     config.getDpnClientThreads());
             ZMQClientPool.getInstance().start();
