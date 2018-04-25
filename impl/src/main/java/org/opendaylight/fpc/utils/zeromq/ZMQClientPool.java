@@ -90,7 +90,7 @@ public class ZMQClientPool extends AbstractThreadPool<ZMQClientSocket> {
 
     @Override
     protected Supplier<? extends ZMQClientSocket> getPoolFactory(DataBroker db) {
-        return new ZMQClientSocketFactory(context, address, ZMQ.PUB, startSignal);
+        return new ZMQClientSocketFactory(context, address, ZMQ.ZMQ_PUB, startSignal);
     }
 
     /**
